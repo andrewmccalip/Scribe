@@ -3,10 +3,15 @@
 Flask app for loading STEP files with XDE (Extended Data Exchange).
 """
 import logging
+import mimetypes
 import os
 import re
 import uuid
 import tempfile
+
+# Fix Windows serving .js as text/plain
+mimetypes.add_type("application/javascript", ".js")
+mimetypes.add_type("text/css", ".css")
 from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template, request, jsonify, send_file
 

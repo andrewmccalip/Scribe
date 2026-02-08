@@ -736,6 +736,23 @@ label {
     font-style: italic;
 }
 
+.combobox-clear {
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: .85rem;
+    line-height: 1;
+    padding: 0 2px;
+    z-index: 1;
+}
+
+.combobox-clear:hover {
+    color: var(--text);
+}
+
 .combobox-list {
     display: none;
     position: absolute;
