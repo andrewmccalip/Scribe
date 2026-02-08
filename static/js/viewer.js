@@ -56,28 +56,36 @@ class Combobox {
         if (!this.input) { console.error("Combobox: input not found in", el); return; }
         this.listEl = el.querySelector(".combobox-list");
         this.options = options; this.onChange = onChange; this.activeIdx = -1;
+        /* Clear button */
+        this.clearBtn = document.createElement("span");
+        this.clearBtn.className = "combobox-clear";
+        this.clearBtn.textContent = "\u00d7";
+        this.clearBtn.style.display = "none";
+        this.el.appendChild(this.clearBtn);
+        this.clearBtn.addEventListener("mousedown", e => { e.preventDefault(); this.input.value = ""; this._updateClear(); this._open(); if (this.onChange) this.onChange(""); });
         this.input.addEventListener("focus", () => this._open());
-        this.input.addEventListener("input", () => this._filter());
+        this.input.addEventListener("input", () => { this._filter(); this._updateClear(); });
         this.input.addEventListener("keydown", (e) => this._onKey(e));
         this.input.addEventListener("blur", () => setTimeout(() => this._close(), 150));
         this._render(this.options);
     }
     setOptions(o) { this.options = o; this._render(o); }
-    setValue(v) { this.input.value = v || ""; }
+    setValue(v) { this.input.value = v || ""; this._updateClear(); }
     getValue() { return this.input.value.trim(); }
-    _open() { this._filter(); this.el.classList.add("open"); this.activeIdx = -1; }
+    _open() { this._render(this.options); this.el.classList.add("open"); this.activeIdx = -1; }
     _close() { this.el.classList.remove("open"); }
     _filter() {
         const q = this.input.value.toLowerCase();
         const f = q ? this.options.filter(o => o.toLowerCase().includes(q)) : this.options;
         this._render(f); this.el.classList.add("open");
     }
+    _updateClear() { this.clearBtn.style.display = this.input.value ? "" : "none"; }
     _render(items) {
         this.listEl.innerHTML = ""; this.activeIdx = -1;
         if (!items.length) { const d = document.createElement("div"); d.className = "combobox-item no-match"; d.textContent = "No matches"; this.listEl.appendChild(d); return; }
         items.forEach(t => {
             const d = document.createElement("div"); d.className = "combobox-item"; d.textContent = t;
-            d.addEventListener("mousedown", e => { e.preventDefault(); this.input.value = t; this._close(); if (this.onChange) this.onChange(t); });
+            d.addEventListener("mousedown", e => { e.preventDefault(); this.input.value = t; this._updateClear(); this._close(); if (this.onChange) this.onChange(t); });
             this.listEl.appendChild(d);
         });
     }
@@ -485,7 +493,7 @@ function loadHeatMapManager() {
 
                 /* Sync to backend */
                 const updates = faces.map(f => ({ face_id: f.userData.faceId, color: e.target.value }));
-                syncFaceColors(updates);
+                syncBatchColor(updates);
             });
             picker.addEventListener('click', (e) => e.stopPropagation());
 
@@ -1378,7 +1386,7 @@ function loadHoleManager() {
 
                 /* Sync to backend */
                 const updates = faces.map(f => ({ face_id: f.userData.faceId, color: e.target.value }));
-                syncFaceColors(updates);
+                syncBatchColor(updates);
             });
             picker.addEventListener('click', (e) => e.stopPropagation());
 
